@@ -23,9 +23,9 @@ class PricingEngine {
     }
 
     /**
-     * Calculate cost for a single item using the new formula
-     * Formula: distanceCost * weightMultiplier * quantity
-     * where weightMultiplier = weightScore * WEIGHT_FACTOR
+     * Calculate cost for a single item using the simplified formula
+     * Formula: perKmRate * distanceKm * quantity
+     * The baseline price already accounts for item weight/complexity
      * @param {CatalogItem} item - Item from catalog
      * @param {number} quantity - Quantity of item
      * @param {number} distanceKm - Distance in kilometers
@@ -39,16 +39,10 @@ class PricingEngine {
         // Per-km rate derived from baseline anchor (for BASELINE_DISTANCE km)
         const perKmRate = this.calculatePerKmRate(item.baseline_price);
 
-        // Base distance scaled cost
-        const distanceCost = perKmRate * distanceKm;
-
-        // Weight multiplier
-        const weightMultiplier = item.weight_score * CONFIG.WEIGHT_FACTOR;
-
-        // Final item cost for quantity
-        const finalItemCost = distanceCost * weightMultiplier * quantity;
+        // Simple cost calculation: perKmRate * distance * quantity
+        const cost = perKmRate * distanceKm * quantity;
         
-        return this.roundToNearestRand(finalItemCost);
+        return this.roundToNearestRand(cost);
     }
 
     /**
