@@ -48,6 +48,7 @@ class CalculatorUI {
                     const place = this.originAutocomplete.getPlace();
                     if (place) {
                         originInput.value = GoogleMapsService.getFormattedAddress(place);
+                        this.updateMapPreview();
                     }
                 });
                 
@@ -55,8 +56,51 @@ class CalculatorUI {
                     const place = this.destinationAutocomplete.getPlace();
                     if (place) {
                         destinationInput.value = GoogleMapsService.getFormattedAddress(place);
+                        this.updateMapPreview();
                     }
                 });
+            }
+
+            // Listen for input changes to update map preview
+            originInput?.addEventListener('input', () => {
+                this.updateMapPreview();
+            });
+
+            destinationInput?.addEventListener('input', () => {
+                this.updateMapPreview();
+            });
+
+            // View route button
+            document.getElementById('viewMapBtn')?.addEventListener('click', () => {
+                if (window.mapPicker) {
+                    const origin = originInput?.value.trim();
+                    const destination = destinationInput?.value.trim();
+                    if (origin && destination) {
+                        window.mapPicker.openRouteMap(origin, destination);
+                    }
+                }
+            });
+        } catch (error) {
+            console.warn('Google Maps Autocomplete not available:', error);
+            // Continue without autocomplete - users can still type addresses
+        }
+    }
+
+    /**
+     * Update map preview button visibility
+     */
+    updateMapPreview() {
+        const origin = document.getElementById('calculatorOrigin')?.value.trim();
+        const destination = document.getElementById('calculatorDestination')?.value.trim();
+        const previewContainer = document.getElementById('mapPreviewContainer');
+        
+        if (previewContainer) {
+            if (origin && destination) {
+                previewContainer.style.display = 'block';
+            } else {
+                previewContainer.style.display = 'none';
+            }
+        }
             }
         } catch (error) {
             console.warn('Google Maps Autocomplete not available:', error);

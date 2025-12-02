@@ -322,15 +322,32 @@
                         <div class="calculator-locations">
                             <div class="form-group">
                                 <label for="calculatorOrigin">Pick-up Location <span class="required">*</span></label>
-                                <input type="text" id="calculatorOrigin" placeholder="Enter pick-up address (e.g., The Reeds, Centurion)" required autocomplete="off">
-                                <small class="form-hint">Start typing to see suggestions from Google Maps</small>
+                                <div class="location-input-wrapper">
+                                    <input type="text" id="calculatorOrigin" placeholder="Enter pick-up address (e.g., The Reeds, Centurion)" required autocomplete="off">
+                                    <button type="button" class="btn-map-picker" id="pickOriginMap" title="Pick location on map">
+                                        <i class="fas fa-map-marker-alt"></i> Map
+                                    </button>
+                                </div>
+                                <small class="form-hint">Start typing to see suggestions or click Map to pick on map</small>
                             </div>
                             
                             <div class="form-group">
                                 <label for="calculatorDestination">Delivery Destination <span class="required">*</span></label>
-                                <input type="text" id="calculatorDestination" placeholder="Enter delivery address (e.g., Tzaneen)" required autocomplete="off">
-                                <small class="form-hint">Start typing to see suggestions from Google Maps</small>
+                                <div class="location-input-wrapper">
+                                    <input type="text" id="calculatorDestination" placeholder="Enter delivery address (e.g., Tzaneen)" required autocomplete="off">
+                                    <button type="button" class="btn-map-picker" id="pickDestinationMap" title="Pick location on map">
+                                        <i class="fas fa-map-marker-alt"></i> Map
+                                    </button>
+                                </div>
+                                <small class="form-hint">Start typing to see suggestions or click Map to pick on map</small>
                             </div>
+                        </div>
+                        
+                        <!-- Map Preview (if both locations are set) -->
+                        <div class="map-preview-container" id="mapPreviewContainer" style="display: none;">
+                            <button type="button" class="btn-map-preview" id="viewMapBtn">
+                                <i class="fas fa-map"></i> View Route on Map
+                            </button>
                         </div>
 
                         <div class="calculator-controls">
@@ -374,6 +391,38 @@
             </div>
         </div>
     </section>
+
+    <!-- Map Picker Modal -->
+    <div class="map-modal" id="mapModal" style="display: none;">
+        <div class="map-modal-content">
+            <div class="map-modal-header">
+                <h3 id="mapModalTitle">Pick Location on Map</h3>
+                <button type="button" class="map-modal-close" id="closeMapModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="map-modal-body">
+                <div class="map-search-bar">
+                    <input type="text" id="mapSearchInput" placeholder="Search for address or location..." autocomplete="off">
+                    <button type="button" class="btn-map-search" id="mapSearchBtn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div class="map-container" id="mapContainer"></div>
+                <div class="map-instructions">
+                    <p><i class="fas fa-info-circle"></i> Enter an address above or click on the map to set location. Drag the marker to adjust the exact spot.</p>
+                    <div class="selected-location-info">
+                        <strong>Selected Location:</strong>
+                        <span id="selectedLocationAddress">No location selected</span>
+                    </div>
+                </div>
+            </div>
+            <div class="map-modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelMapBtn">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmMapBtn">Use This Location</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Quote Form Section -->
     <section class="quote-section" id="quote">
@@ -692,6 +741,8 @@
     <!-- Moving Calculator Scripts -->
     <!-- Google Maps Service (load before calculator scripts) -->
     <script src="js/google-maps-service.js"></script>
+    <!-- Map Picker Component -->
+    <script src="js/map-picker.js"></script>
     <!-- Optional: Load calculator-config.js to configure API keys (see CALCULATOR_SETUP.md) -->
     <!-- <script src="js/calculator-config.js"></script> -->
     <script src="js/moving-calculator-types.js"></script>
