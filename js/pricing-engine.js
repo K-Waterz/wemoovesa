@@ -9,21 +9,23 @@
  */
 class PricingEngine {
     /**
-     * Calculate per-km rate from reference price
-     * Uses reference: "The Reeds, Centurion" → "Tzaneen" = 365 km
-     * @param {number} baseReferencePrice - Base reference price for 365km
+     * Calculate per-km rate from baseline price
+     * Uses reference: "The Reeds, Centurion" → "Tzaneen" = 299 km
+     * @param {number} baselinePrice - Baseline price for reference route (299km)
      * @returns {number} Per-kilometer rate
      */
-    static calculatePerKmRate(baseReferencePrice) {
-        if (!baseReferencePrice || baseReferencePrice <= 0) {
-            throw new Error('Invalid base reference price');
+    static calculatePerKmRate(baselinePrice) {
+        if (!baselinePrice || baselinePrice <= 0) {
+            throw new Error('Invalid baseline price');
         }
         
-        return baseReferencePrice / CONFIG.REFERENCE_DISTANCE_KM;
+        return baselinePrice / CONFIG.BASELINE_DISTANCE;
     }
 
     /**
-     * Calculate cost for a single item
+     * Calculate cost for a single item using the new formula
+     * Formula: distanceCost * weightMultiplier * quantity
+     * where weightMultiplier = weightScore * WEIGHT_FACTOR
      * @param {CatalogItem} item - Item from catalog
      * @param {number} quantity - Quantity of item
      * @param {number} distanceKm - Distance in kilometers
@@ -34,10 +36,19 @@ class PricingEngine {
             return 0;
         }
 
-        const perKmRate = this.calculatePerKmRate(item.base_reference_price);
-        const itemCost = (perKmRate * distanceKm) * item.weight_score;
+        // Per-km rate derived from baseline anchor (for BASELINE_DISTANCE km)
+        const perKmRate = this.calculatePerKmRate(item.baseline_price);
+
+        // Base distance scaled cost
+        const distanceCost = perKmRate * distanceKm;
+
+        // Weight multiplier
+        const weightMultiplier = item.weight_score * CONFIG.WEIGHT_FACTOR;
+
+        // Final item cost for quantity
+        const finalItemCost = distanceCost * weightMultiplier * quantity;
         
-        return this.roundToNearestRand(itemCost * quantity);
+        return this.roundToNearestRand(finalItemCost);
     }
 
     /**
@@ -62,35 +73,15 @@ class PricingEngine {
 
     /**
      * Calculate trailer cost
+     * Formula: max(MIN_TRAILER_COST, distanceKm * TRAILER_RATE_PER_KM)
      * @param {number} distanceKm - Distance in kilometers
-     * @param {number} perKmRate - Base per-km rate
      * @returns {number} Trailer cost in Rands
      */
-    static calculateTrailerCost(distanceKm, perKmRate) {
-        // Trailer cost = max(10,000, (distance_km * per_km_rate * 20))
-        const calculatedCost = distanceKm * perKmRate * CONFIG.TRUCK_CAPACITY;
+    static calculateTrailerCost(distanceKm) {
+        const calculatedCost = distanceKm * CONFIG.TRAILER_RATE_PER_KM;
         const trailerCost = Math.max(CONFIG.TRAILER_MIN_COST, calculatedCost);
         
         return this.roundToNearestRand(trailerCost);
-    }
-
-    /**
-     * Calculate the average per-km rate from all selected items
-     * Uses the average of all item per-km rates
-     * @param {Array<{item: CatalogItem, quantity: number}>} selectedItems
-     * @returns {number} Average per-km rate
-     */
-    static calculateAveragePerKmRate(selectedItems) {
-        if (!selectedItems || selectedItems.length === 0) {
-            return 0;
-        }
-
-        const totalRate = selectedItems.reduce((sum, selected) => {
-            const itemRate = this.calculatePerKmRate(selected.item.base_reference_price);
-            return sum + itemRate;
-        }, 0);
-
-        return totalRate / selectedItems.length;
     }
 
     /**
@@ -148,9 +139,7 @@ class PricingEngine {
         // Calculate trailer cost if needed
         let trailerCost = 0;
         if (trailerRequired) {
-            // Use average per-km rate for trailer calculation
-            const avgPerKmRate = this.calculateAveragePerKmRate(selectedItems);
-            trailerCost = this.calculateTrailerCost(distanceKm, avgPerKmRate);
+            trailerCost = this.calculateTrailerCost(distanceKm);
         }
 
         // Calculate total
@@ -159,7 +148,7 @@ class PricingEngine {
         return {
             origin: origin,
             destination: destination,
-            distance_km: distanceKm,
+            distance_km: Number(distanceKm.toFixed(1)),
             items: invoiceItems,
             subtotal: roundedSubtotal,
             trailer_required: trailerRequired,
@@ -168,4 +157,3 @@ class PricingEngine {
         };
     }
 }
-

@@ -5,10 +5,11 @@
 
 /**
  * @typedef {Object} CatalogItem
- * @property {string} name - Name of the item
+ * @property {string} id - Unique identifier for the item
+ * @property {string} name - Display name of the item
  * @property {string} category - Category of the item
- * @property {number} weight_score - Weight score (1-4)
- * @property {number} base_reference_price - Base price used for per-km rate calculation
+ * @property {number} weight_score - Weight score (1-5)
+ * @property {number} baseline_price - Baseline price for reference route (299 km)
  */
 
 /**
@@ -43,9 +44,11 @@
  * Constants
  */
 const CONFIG = {
-    TRUCK_CAPACITY: 20, // weight points
-    TRAILER_MIN_COST: 10000, // R10,000 minimum
-    REFERENCE_DISTANCE_KM: 365, // "The Reeds, Centurion" → "Tzaneen"
+    BASELINE_DISTANCE: 299, // Baseline distance (reference route: The Reeds, Centurion -> Tzaneen)
+    TRUCK_CAPACITY: 50, // weight points (1-ton Kia threshold)
+    TRAILER_MIN_COST: 10000, // R10,000 minimum when trailer is required
+    TRAILER_RATE_PER_KM: 35, // Fallback per-km rate for trailer cost calculation
+    WEIGHT_FACTOR: 0.85, // Weight multiplier factor
     REFERENCE_ORIGIN: "The Reeds, Centurion",
     REFERENCE_DESTINATION: "Tzaneen"
 };
