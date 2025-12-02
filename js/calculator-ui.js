@@ -196,11 +196,6 @@ class CalculatorUI {
             }
         }
     }
-        } catch (error) {
-            console.warn('Google Maps Autocomplete not available:', error);
-            // Continue without autocomplete - users can still type addresses
-        }
-    }
 
     /**
      * Load items from catalog into the UI
@@ -403,16 +398,58 @@ class CalculatorUI {
     }
 
     /**
+     * Build full address from address detail fields
+     * @param {string} type - 'origin' or 'destination'
+     * @returns {string} Full formatted address
+     */
+    buildFullAddress(type) {
+        const prefix = type === 'origin' ? 'origin' : 'destination';
+        
+        // Get main search input address
+        const mainAddress = document.getElementById(`calculator${type === 'origin' ? 'Origin' : 'Destination'}`)?.value.trim() || '';
+        
+        // Get address detail fields
+        const streetAddress = document.getElementById(`${prefix}StreetAddress`)?.value.trim() || '';
+        const buildingUnit = document.getElementById(`${prefix}BuildingUnit`)?.value.trim() || '';
+        const suburb = document.getElementById(`${prefix}Suburb`)?.value.trim() || '';
+        const city = document.getElementById(`${prefix}City`)?.value.trim() || '';
+        const province = document.getElementById(`${prefix}Province`)?.value.trim() || '';
+        const postalCode = document.getElementById(`${prefix}PostalCode`)?.value.trim() || '';
+        
+        // If address details are filled, build from details
+        if (streetAddress || city) {
+            const addressParts = [];
+            
+            if (buildingUnit) addressParts.push(buildingUnit);
+            if (streetAddress) addressParts.push(streetAddress);
+            if (suburb) addressParts.push(suburb);
+            if (city) addressParts.push(city);
+            if (province) addressParts.push(province);
+            if (postalCode) addressParts.push(postalCode);
+            
+            return addressParts.join(', ') || mainAddress;
+        }
+        
+        // Otherwise use main search input
+        return mainAddress;
+    }
+
+    /**
      * Handle calculate button click
      */
     async handleCalculate() {
-        // Get form values
-        const origin = document.getElementById('calculatorOrigin').value.trim();
-        const destination = document.getElementById('calculatorDestination').value.trim();
+        // Build full addresses from detail fields
+        const origin = this.buildFullAddress('origin');
+        const destination = this.buildFullAddress('destination');
 
         // Validate
-        if (!origin || !destination) {
-            this.showError('Please enter both origin and destination locations.');
+        if (!origin || origin.trim() === '') {
+            this.showError('Please enter pick-up location.');
+            return;
+        }
+
+        if (!destination || destination.trim() === '') {
+            this.showError('Please enter delivery destination.');
             return;
         }
 
@@ -423,6 +460,7 @@ class CalculatorUI {
 
         // Show loading state
         this.setLoadingState(true);
+        this.clearError();
 
         try {
             // Calculate
@@ -437,7 +475,7 @@ class CalculatorUI {
             this.scrollToResults();
         } catch (error) {
             console.error('Calculation error:', error);
-            this.showError(`Error calculating cost: ${error.message}`);
+            this.showError(`Error calculating cost: ${error.message || 'Please check your inputs and try again.'}`);
         } finally {
             this.setLoadingState(false);
         }
@@ -575,8 +613,48 @@ class CalculatorUI {
     handleReset() {
         this.selectedItems = [];
         this.invoice = null;
+        
+        // Clear main location inputs
         document.getElementById('calculatorOrigin').value = '';
         document.getElementById('calculatorDestination').value = '';
+        
+        // Clear all address detail fields
+        ['origin', 'destination'].forEach(prefix => {
+            const streetAddress = document.getElementById(`${prefix}StreetAddress`);
+            const buildingUnit = document.getElementById(`${prefix}BuildingUnit`);
+            const suburb = document.getElementById(`${prefix}Suburb`);
+            const city = document.getElementById(`${prefix}City`);
+            const province = document.getElementById(`${prefix}Province`);
+            const postalCode = document.getElementById(`${prefix}PostalCode`);
+            
+            if (streetAddress) streetAddress.value = '';
+            if (buildingUnit) buildingUnit.value = '';
+            if (suburb) suburb.value = '';
+            if (city) city.value = '';
+            if (province) province.value = '';
+            if (postalCode) postalCode.value = '';
+            
+            // Hide address details sections
+            const detailsSection = document.getElementById(`${prefix}AddressDetails`);
+            if (detailsSection) {
+                detailsSection.style.display = 'none';
+            }
+            
+            const detailsContent = document.getElementById(`${prefix}DetailsContent`);
+            if (detailsContent) {
+                detailsContent.style.display = 'none';
+            }
+            
+            // Reset toggle button
+            const toggleBtn = document.getElementById(`toggle${prefix.charAt(0).toUpperCase() + prefix.slice(1)}Details`);
+            if (toggleBtn) {
+                toggleBtn.classList.remove('expanded');
+                const icon = toggleBtn.querySelector('i');
+                if (icon) {
+                    icon.className = 'fas fa-chevron-down';
+                }
+            }
+        });
         
         // Reset all quantities
         document.querySelectorAll('.item-quantity').forEach(el => {
@@ -588,6 +666,12 @@ class CalculatorUI {
             card.classList.remove('selected');
         });
 
+        // Clear map preview
+        const previewContainer = document.getElementById('mapPreviewContainer');
+        if (previewContainer) {
+            previewContainer.style.display = 'none';
+        }
+
         // Clear results
         const resultsContainer = document.getElementById('calculatorResults');
         if (resultsContainer) {
@@ -595,9 +679,26 @@ class CalculatorUI {
             resultsContainer.innerHTML = '';
         }
 
+        // Clear search and filter
+        const searchInput = document.getElementById('calculatorSearch');
+        if (searchInput) searchInput.value = '';
+        
+        const categoryFilter = document.getElementById('calculatorCategoryFilter');
+        if (categoryFilter) categoryFilter.value = '';
+        
+        // Show all items and categories
+        document.querySelectorAll('.calculator-item-card').forEach(card => {
+            card.style.display = '';
+        });
+        
+        document.querySelectorAll('.calculator-category').forEach(category => {
+            category.style.display = '';
+        });
+
         // Clear errors
         this.clearError();
         this.updateSelectedItemsDisplay();
+        this.updateMapPreview();
     }
 
     /**

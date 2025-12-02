@@ -524,6 +524,9 @@ class MapPicker {
 
 // Initialize map picker when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    window.mapPicker = new MapPicker();
+    // Initialize after calculator UI is ready
+    setTimeout(() => {
+        window.mapPicker = new MapPicker();
+    }, 100);
 });
 
