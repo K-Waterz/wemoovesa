@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator Test - Quick Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Calculator Component Verification Test</h1>
+    <p>This page checks if all calculator components are loaded correctly.</p>
+    
+    <button onclick="runTests()">Run Tests</button>
+    <button onclick="location.href='index.html#calculator'">Go to Calculator</button>
+    
+    <div id="testResults"></div>
+
+    <script>
+        function addResult(message, type) {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            document.getElementById('testResults').appendChild(div);
+        }
+
+        function runTests() {
+            document.getElementById('testResults').innerHTML = '';
+            addResult('Starting calculator component tests...', 'warning');
+            
+            let testsPassed = 0;
+            let testsFailed = 0;
+
+            // Test 1: Check required JavaScript files
+            setTimeout(() => {
+                addResult('Test 1: Checking required JavaScript components...', 'warning');
+                
+                const components = {
+                    'CONFIG (Types)': typeof CONFIG !== 'undefined',
+                    'ItemCatalogService': typeof ItemCatalogService !== 'undefined',
+                    'DistanceService': typeof DistanceService !== 'undefined',
+                    'PricingEngine': typeof PricingEngine !== 'undefined',
+                    'MovingCalculator': typeof MovingCalculator !== 'undefined',
+                    'CalculatorUI': typeof CalculatorUI !== 'undefined',
+                    'GoogleMapsService': typeof GoogleMapsService !== 'undefined',
+                    'MapPicker': typeof MapPicker !== 'undefined'
+                };
+
+                Object.entries(components).forEach(([name, exists]) => {
+                    if (exists) {
+                        addResult(`✅ ${name}: Loaded`, 'pass');
+                        testsPassed++;
+                    } else {
+                        addResult(`❌ ${name}: NOT FOUND`, 'fail');
+                        testsFailed++;
+                    }
+                });
+
+                // Test 2: Check CONFIG values
+                if (typeof CONFIG !== 'undefined') {
+                    addResult('Test 2: Checking CONFIG values...', 'warning');
+                    const configKeys = ['BASELINE_DISTANCE', 'TRUCK_CAPACITY', 'TRAILER_MIN_COST', 'TRAILER_RATE_PER_KM'];
+                    configKeys.forEach(key => {
+                        if (CONFIG[key] !== undefined) {
+                            addResult(`✅ CONFIG.${key} = ${CONFIG[key]}`, 'pass');
+                            testsPassed++;
+                        } else {
+                            addResult(`❌ CONFIG.${key}: Missing`, 'fail');
+                            testsFailed++;
+                        }
+                    });
+                }
+
+                // Test 3: Check Item Catalog
+                if (typeof ItemCatalogService !== 'undefined') {
+                    addResult('Test 3: Checking Item Catalog...', 'warning');
+                    try {
+                        const categories = ItemCatalogService.getCategories();
+                        const items = ItemCatalogService.getAllItems();
+                        addResult(`✅ Categories found: ${categories.length}`, 'pass');
+                        addResult(`✅ Items found: ${items.length}`, 'pass');
+                        testsPassed += 2;
+                        
+                        if (items.length === 0) {
+                            addResult(`⚠️ Warning: No items in catalog`, 'warning');
+                        }
+                    } catch (e) {
+                        addResult(`❌ Error accessing catalog: ${e.message}`, 'fail');
+                        testsFailed++;
+                    }
+                }
+
+                // Test 4: Check Google Maps API
+                addResult('Test 4: Checking Google Maps API...', 'warning');
+                if (typeof google !== 'undefined' && google.maps) {
+                    addResult('✅ Google Maps API: Loaded', 'pass');
+                    testsPassed++;
+                } else {
+                    addResult('⚠️ Google Maps API: Not loaded (this is OK if API key not configured)', 'warning');
+                }
+
+                // Test 5: Check calculator UI initialization
+                if (typeof CalculatorUI !== 'undefined') {
+                    addResult('Test 5: Calculator UI class available', 'pass');
+                    testsPassed++;
+                } else {
+                    addResult('Test 5: Calculator UI class NOT found', 'fail');
+                    testsFailed++;
+                }
+
+                // Summary
+                setTimeout(() => {
+                    addResult('', 'warning');
+                    addResult(`📊 Test Summary: ${testsPassed} passed, ${testsFailed} failed`, 
+                        testsFailed === 0 ? 'pass' : 'fail');
+                    
+                    if (testsFailed === 0) {
+                        addResult('✅ All tests passed! Calculator should be working.', 'pass');
+                    } else {
+                        addResult('❌ Some tests failed. Check console for errors.', 'fail');
+                    }
+                }, 500);
+            }, 100);
+        }
+
+        // Auto-run tests after page loads (if scripts are loaded)
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (document.readyState === 'complete') {
+                    addResult('Page loaded. Click "Run Tests" to verify components.', 'warning');
+                }
+            }, 1000);
+        });
+    </script>
+
+    <!-- Load all calculator scripts -->
+    <script src="js/google-maps-service.js"></script>
+    <script src="js/map-picker.js"></script>
+    <script src="js/moving-calculator-types.js"></script>
+    <script src="js/items-catalog.js"></script>
+    <script src="js/distance-service.js"></script>
+    <script src="js/pricing-engine.js"></script>
+    <script src="js/moving-calculator.js"></script>
+    <script src="js/calculator-ui.js"></script>
+</body>
+</html>
+
