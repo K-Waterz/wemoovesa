@@ -45,6 +45,7 @@
                         <li><a href="#services" class="nav-link">Services</a></li>
                         <li><a href="#about" class="nav-link">About Us</a></li>
                         <li><a href="#process" class="nav-link">How It Works</a></li>
+                        <li><a href="#calculator" class="nav-link">Calculator</a></li>
                         <li><a href="#contact" class="nav-link">Contact</a></li>
                         <li><a href="#quote" class="nav-link btn-cta">Get Free Quote</a></li>
                     </ul>
@@ -286,6 +287,71 @@
                     <h3 class="step-title">Enjoy Your New Space</h3>
                     <p class="step-description">Settle into your new home or office stress-free. We're here if you need anything!</p>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Moving Cost Calculator Section -->
+    <section class="calculator-section" id="calculator">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Moving Cost Calculator</h2>
+                <p class="section-subtitle">Get an instant, accurate quote based on your items and distance</p>
+            </div>
+
+            <div class="calculator-wrapper" id="movingCalculator">
+                <div class="calculator-form-container">
+                    <form class="calculator-form" id="calculatorForm">
+                        <div class="calculator-locations">
+                            <div class="form-group">
+                                <label for="calculatorOrigin">Starting Location <span class="required">*</span></label>
+                                <input type="text" id="calculatorOrigin" placeholder="e.g., The Reeds, Centurion" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="calculatorDestination">Final Destination <span class="required">*</span></label>
+                                <input type="text" id="calculatorDestination" placeholder="e.g., Tzaneen" required>
+                            </div>
+                        </div>
+
+                        <div class="calculator-controls">
+                            <div class="form-group">
+                                <label for="calculatorSearch">Search Items</label>
+                                <input type="text" id="calculatorSearch" placeholder="Search by name or category...">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="calculatorCategoryFilter">Filter by Category</label>
+                                <select id="calculatorCategoryFilter">
+                                    <option value="">All Categories</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="calculator-items-container">
+                            <h3>Select Items to Move</h3>
+                            <div id="calculatorItems"></div>
+                        </div>
+
+                        <div class="calculator-selected-items">
+                            <h3>Selected Items</h3>
+                            <div id="selectedItemsList"></div>
+                        </div>
+
+                        <div class="calculator-error" id="calculatorError"></div>
+
+                        <div class="calculator-actions">
+                            <button type="button" class="btn btn-secondary" id="resetCalculatorBtn">
+                                <i class="fas fa-redo"></i> Reset
+                            </button>
+                            <button type="button" class="btn btn-primary" id="calculateMoveBtn">
+                                <i class="fas fa-calculator"></i> Calculate Cost
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="calculator-results" id="calculatorResults" style="display: none;"></div>
             </div>
         </div>
     </section>
@@ -604,6 +670,16 @@
     </button>
 
     <!-- JavaScript -->
+    <!-- Moving Calculator Scripts -->
+    <!-- Optional: Load calculator-config.js to configure API keys (see CALCULATOR_SETUP.md) -->
+    <!-- <script src="js/calculator-config.js"></script> -->
+    <script src="js/moving-calculator-types.js"></script>
+    <script src="js/items-catalog.js"></script>
+    <script src="js/distance-service.js"></script>
+    <script src="js/pricing-engine.js"></script>
+    <script src="js/moving-calculator.js"></script>
+    <script src="js/calculator-ui.js"></script>
+    <!-- Main Site Scripts -->
     <script src="js/script.js"></script>
 </body>
 </html>
