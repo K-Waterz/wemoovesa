@@ -31,7 +31,7 @@ class GoogleMapsService {
 
         const defaultOptions = {
             componentRestrictions: { country: 'za' }, // Restrict to South Africa
-            fields: ['formatted_address', 'geometry', 'name'],
+            fields: ['formatted_address', 'geometry', 'name', 'address_components', 'place_id'],
             types: ['address', 'establishment']
         };
 
@@ -52,6 +52,87 @@ class GoogleMapsService {
         if (!place) return '';
         
         return place.formatted_address || place.name || '';
+    }
+
+    /**
+     * Parse address components from Google Places result
+     * @param {google.maps.places.PlaceResult} place
+     * @returns {Object} Parsed address components
+     */
+    static parseAddressComponents(place) {
+        if (!place || !place.address_components) {
+            return {
+                streetNumber: '',
+                route: '',
+                streetAddress: '',
+                buildingUnit: '',
+                suburb: '',
+                city: '',
+                province: '',
+                postalCode: '',
+                formattedAddress: this.getFormattedAddress(place)
+            };
+        }
+
+        const components = place.address_components;
+        const parsed = {
+            streetNumber: '',
+            route: '',
+            streetAddress: '',
+            buildingUnit: '',
+            suburb: '',
+            city: '',
+            province: '',
+            postalCode: '',
+            formattedAddress: place.formatted_address || ''
+        };
+
+        components.forEach(component => {
+            const types = component.types;
+
+            if (types.includes('street_number')) {
+                parsed.streetNumber = component.long_name;
+            }
+
+            if (types.includes('route')) {
+                parsed.route = component.long_name;
+            }
+
+            if (types.includes('subpremise')) {
+                parsed.buildingUnit = component.long_name;
+            }
+
+            if (types.includes('premise')) {
+                parsed.buildingUnit = component.long_name;
+            }
+
+            if (types.includes('sublocality') || types.includes('sublocality_level_1')) {
+                parsed.suburb = component.long_name;
+            }
+
+            if (types.includes('locality')) {
+                parsed.city = component.long_name;
+            }
+
+            if (types.includes('administrative_area_level_1')) {
+                parsed.province = component.short_name;
+            }
+
+            if (types.includes('postal_code')) {
+                parsed.postalCode = component.long_name;
+            }
+        });
+
+        // Combine street number and route
+        if (parsed.streetNumber && parsed.route) {
+            parsed.streetAddress = `${parsed.streetNumber} ${parsed.route}`;
+        } else if (parsed.route) {
+            parsed.streetAddress = parsed.route;
+        } else if (parsed.streetNumber) {
+            parsed.streetAddress = parsed.streetNumber;
+        }
+
+        return parsed;
     }
 
     /**

@@ -261,7 +261,8 @@ class MapPicker {
                 this.selectedPlace = {
                     address: results[0].formatted_address,
                     location: location,
-                    place_id: results[0].place_id
+                    place_id: results[0].place_id,
+                    placeResult: results[0] // Store full result for address parsing
                 };
 
                 this.updateSelectedLocationDisplay(results[0].formatted_address);
@@ -280,11 +281,22 @@ class MapPicker {
 
         this.geocoder.geocode({ location: position }, (results, status) => {
             if (status === 'OK' && results[0]) {
-                const address = results[0].formatted_address;
+                const result = results[0];
+                const address = result.formatted_address;
+                
+                // Create a place-like object from geocoder result
+                const placeResult = {
+                    formatted_address: address,
+                    geometry: { location: position },
+                    place_id: result.place_id,
+                    address_components: result.address_components
+                };
+                
                 this.selectedPlace = {
                     address: address,
                     location: position,
-                    place_id: results[0].place_id
+                    place_id: result.place_id,
+                    placeResult: placeResult
                 };
                 this.updateSelectedLocationDisplay(address);
             }
@@ -305,9 +317,32 @@ class MapPicker {
     /**
      * Confirm selected location
      */
-    confirmLocation() {
+    async confirmLocation() {
         if (this.selectedPlace && this.currentInput) {
-            this.currentInput.value = this.selectedPlace.address;
+            const address = this.selectedPlace.address;
+            this.currentInput.value = address;
+            
+            // Populate address fields if place result is available
+            if (this.selectedPlace.placeResult && window.calculatorUI) {
+                const type = this.currentType; // 'origin' or 'destination'
+                window.calculatorUI.populateAddressFields(type, this.selectedPlace.placeResult);
+            } else if (this.selectedPlace.place_id && window.calculatorUI) {
+                // Try to get full place details if not already available
+                try {
+                    const service = new google.maps.places.PlacesService(this.map);
+                    service.getDetails({
+                        placeId: this.selectedPlace.place_id,
+                        fields: ['formatted_address', 'address_components', 'geometry']
+                    }, (place, status) => {
+                        if (status === google.maps.places.PlacesServiceStatus.OK && place) {
+                            const type = this.currentType; // 'origin' or 'destination'
+                            window.calculatorUI.populateAddressFields(type, place);
+                        }
+                    });
+                } catch (error) {
+                    console.warn('Could not get place details:', error);
+                }
+            }
             
             // Trigger input event to update any autocomplete listeners
             this.currentInput.dispatchEvent(new Event('input'));

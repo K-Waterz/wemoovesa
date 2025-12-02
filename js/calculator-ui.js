@@ -37,29 +37,47 @@ class CalculatorUI {
             const destinationInput = document.getElementById('calculatorDestination');
             
             if (originInput && destinationInput) {
+                // Ensure inputs are properly configured for autocomplete
+                originInput.setAttribute('autocomplete', 'off');
+                destinationInput.setAttribute('autocomplete', 'off');
+                
                 // Initialize autocomplete for origin
-                this.originAutocomplete = GoogleMapsService.initAutocomplete(originInput);
+                try {
+                    this.originAutocomplete = GoogleMapsService.initAutocomplete(originInput);
+                    
+                    // Add place changed listeners
+                    this.originAutocomplete.addListener('place_changed', () => {
+                        const place = this.originAutocomplete.getPlace();
+                        if (place && place.geometry) {
+                            originInput.value = GoogleMapsService.getFormattedAddress(place);
+                            this.populateAddressFields('origin', place);
+                            this.updateMapPreview();
+                        }
+                    });
+                } catch (error) {
+                    console.warn('Could not initialize origin autocomplete:', error);
+                }
                 
                 // Initialize autocomplete for destination
-                this.destinationAutocomplete = GoogleMapsService.initAutocomplete(destinationInput);
-                
-                // Add place changed listeners
-                this.originAutocomplete.addListener('place_changed', () => {
-                    const place = this.originAutocomplete.getPlace();
-                    if (place) {
-                        originInput.value = GoogleMapsService.getFormattedAddress(place);
-                        this.updateMapPreview();
-                    }
-                });
-                
-                this.destinationAutocomplete.addListener('place_changed', () => {
-                    const place = this.destinationAutocomplete.getPlace();
-                    if (place) {
-                        destinationInput.value = GoogleMapsService.getFormattedAddress(place);
-                        this.updateMapPreview();
-                    }
-                });
+                try {
+                    this.destinationAutocomplete = GoogleMapsService.initAutocomplete(destinationInput);
+                    
+                    // Add place changed listeners
+                    this.destinationAutocomplete.addListener('place_changed', () => {
+                        const place = this.destinationAutocomplete.getPlace();
+                        if (place && place.geometry) {
+                            destinationInput.value = GoogleMapsService.getFormattedAddress(place);
+                            this.populateAddressFields('destination', place);
+                            this.updateMapPreview();
+                        }
+                    });
+                } catch (error) {
+                    console.warn('Could not initialize destination autocomplete:', error);
+                }
             }
+
+            // Setup address details toggles
+            this.setupAddressDetailsToggles();
 
             // Listen for input changes to update map preview
             originInput?.addEventListener('input', () => {
@@ -87,6 +105,82 @@ class CalculatorUI {
     }
 
     /**
+     * Populate address detail fields from Google Places result
+     * @param {string} type - 'origin' or 'destination'
+     * @param {google.maps.places.PlaceResult} place
+     */
+    populateAddressFields(type, place) {
+        const addressData = GoogleMapsService.parseAddressComponents(place);
+        const prefix = type === 'origin' ? 'origin' : 'destination';
+        
+        // Show address details section
+        const detailsSection = document.getElementById(`${prefix}AddressDetails`);
+        if (detailsSection) {
+            detailsSection.style.display = 'block';
+        }
+
+        // Populate fields
+        const streetAddress = document.getElementById(`${prefix}StreetAddress`);
+        const buildingUnit = document.getElementById(`${prefix}BuildingUnit`);
+        const suburb = document.getElementById(`${prefix}Suburb`);
+        const city = document.getElementById(`${prefix}City`);
+        const province = document.getElementById(`${prefix}Province`);
+        const postalCode = document.getElementById(`${prefix}PostalCode`);
+
+        if (streetAddress) streetAddress.value = addressData.streetAddress || '';
+        if (buildingUnit) buildingUnit.value = addressData.buildingUnit || '';
+        if (suburb) suburb.value = addressData.suburb || '';
+        if (city) city.value = addressData.city || '';
+        if (province) province.value = addressData.province || '';
+        if (postalCode) postalCode.value = addressData.postalCode || '';
+    }
+
+    /**
+     * Setup toggle buttons for address details
+     */
+    setupAddressDetailsToggles() {
+        const toggleOrigin = document.getElementById('toggleOriginDetails');
+        const toggleDestination = document.getElementById('toggleDestinationDetails');
+
+        toggleOrigin?.addEventListener('click', () => {
+            this.toggleAddressDetails('origin');
+        });
+
+        toggleDestination?.addEventListener('click', () => {
+            this.toggleAddressDetails('destination');
+        });
+    }
+
+    /**
+     * Toggle address details section
+     * @param {string} type - 'origin' or 'destination'
+     */
+    toggleAddressDetails(type) {
+        const prefix = type === 'origin' ? 'origin' : 'destination';
+        const content = document.getElementById(`${prefix}DetailsContent`);
+        const button = document.getElementById(`toggle${prefix.charAt(0).toUpperCase() + prefix.slice(1)}Details`);
+        const icon = button?.querySelector('i');
+
+        if (content && button) {
+            const isExpanded = content.style.display !== 'none';
+            
+            if (isExpanded) {
+                content.style.display = 'none';
+                if (icon) {
+                    icon.className = 'fas fa-chevron-down';
+                }
+                button.classList.remove('expanded');
+            } else {
+                content.style.display = 'block';
+                if (icon) {
+                    icon.className = 'fas fa-chevron-up';
+                }
+                button.classList.add('expanded');
+            }
+        }
+    }
+
+    /**
      * Update map preview button visibility
      */
     updateMapPreview() {
@@ -101,7 +195,7 @@ class CalculatorUI {
                 previewContainer.style.display = 'none';
             }
         }
-            }
+    }
         } catch (error) {
             console.warn('Google Maps Autocomplete not available:', error);
             // Continue without autocomplete - users can still type addresses
