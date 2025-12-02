@@ -774,6 +774,14 @@ p {
     min-height: 120px;
 }
 
+.form-hint {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-light);
+    font-style: italic;
+}
+
 .form-message {
     margin-top: 1rem;
     padding: 1rem;
@@ -1319,6 +1327,14 @@ p {
     margin-bottom: 2rem;
 }
 
+.calculator-locations .form-hint {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-light);
+    font-style: italic;
+    display: block;
+}
+
 .calculator-controls {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -1696,5 +1712,122 @@ p {
     
     .results-actions .btn {
         width: 100%;
+    }
+}
+
+/* ========================================
+   Print Styles - Calculator Results Only
+   ======================================== */
+@media print {
+    /* Hide everything except calculator results */
+    body * {
+        visibility: hidden;
+    }
+    
+    /* Show only calculator results */
+    .calculator-results,
+    .calculator-results * {
+        visibility: visible;
+    }
+    
+    /* Position results at top of page */
+    .calculator-results {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 20px;
+        box-shadow: none;
+        border: none;
+    }
+    
+    /* Hide interactive elements */
+    .calculator-results .results-actions,
+    .calculator-results .btn,
+    .back-to-top,
+    .header,
+    .footer,
+    .calculator-form-container {
+        display: none !important;
+    }
+    
+    /* Ensure results are properly styled for print */
+    .calculator-results-content {
+        max-width: 100%;
+    }
+    
+    .results-title {
+        page-break-after: avoid;
+        margin-bottom: 1rem;
+    }
+    
+    .results-summary,
+    .results-items,
+    .results-totals {
+        page-break-inside: avoid;
+        margin-bottom: 1rem;
+    }
+    
+    /* Print-friendly table */
+    .results-table {
+        width: 100%;
+        border-collapse: collapse;
+        page-break-inside: avoid;
+    }
+    
+    .results-table th,
+    .results-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+    
+    .results-table th {
+        background-color: #f2f2f2 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    /* Ensure text is black for print */
+    .calculator-results * {
+        color: #000 !important;
+    }
+    
+    /* Remove background colors */
+    .calculator-results {
+        background: white !important;
+    }
+    
+    .results-summary,
+    .results-totals {
+        background: #f9f9f9 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    /* Prevent page breaks inside rows */
+    .result-row,
+    .total-row {
+        page-break-inside: avoid;
+    }
+    
+    /* Logo/header if needed for print */
+    .calculator-results::before {
+        content: "We MOOVE SA - Moving Cost Calculator";
+        display: block;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    /* Add date/time stamp */
+    .calculator-results::after {
+        content: "Generated: " attr(data-print-date);
+        display: block;
+        font-size: 12px;
+        text-align: right;
+        margin-top: 20px;
+        color: #666;
     }
 }

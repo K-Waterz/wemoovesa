@@ -18,10 +18,50 @@ class CalculatorUI {
     /**
      * Initialize the calculator UI
      */
-    init() {
+    async init() {
         this.loadItemsIntoUI();
         this.attachEventListeners();
         this.updateSelectedItemsDisplay();
+        await this.initGoogleMapsAutocomplete();
+    }
+
+    /**
+     * Initialize Google Maps Places Autocomplete for location inputs
+     */
+    async initGoogleMapsAutocomplete() {
+        try {
+            // Wait for Google Maps API to load
+            await GoogleMapsService.waitForLoad(10000);
+            
+            const originInput = document.getElementById('calculatorOrigin');
+            const destinationInput = document.getElementById('calculatorDestination');
+            
+            if (originInput && destinationInput) {
+                // Initialize autocomplete for origin
+                this.originAutocomplete = GoogleMapsService.initAutocomplete(originInput);
+                
+                // Initialize autocomplete for destination
+                this.destinationAutocomplete = GoogleMapsService.initAutocomplete(destinationInput);
+                
+                // Add place changed listeners
+                this.originAutocomplete.addListener('place_changed', () => {
+                    const place = this.originAutocomplete.getPlace();
+                    if (place) {
+                        originInput.value = GoogleMapsService.getFormattedAddress(place);
+                    }
+                });
+                
+                this.destinationAutocomplete.addListener('place_changed', () => {
+                    const place = this.destinationAutocomplete.getPlace();
+                    if (place) {
+                        destinationInput.value = GoogleMapsService.getFormattedAddress(place);
+                    }
+                });
+            }
+        } catch (error) {
+            console.warn('Google Maps Autocomplete not available:', error);
+            // Continue without autocomplete - users can still type addresses
+        }
     }
 
     /**
@@ -362,6 +402,16 @@ class CalculatorUI {
 
         resultsContainer.innerHTML = html;
         resultsContainer.style.display = 'block';
+        
+        // Add print date attribute for print styles
+        const now = new Date();
+        resultsContainer.setAttribute('data-print-date', now.toLocaleString('en-ZA', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }));
 
         // Attach action buttons
         document.getElementById('downloadJSONBtn')?.addEventListener('click', () => {
@@ -369,8 +419,16 @@ class CalculatorUI {
         });
 
         document.getElementById('printResultsBtn')?.addEventListener('click', () => {
-            window.print();
+            this.printResults();
         });
+    }
+
+    /**
+     * Print calculator results only
+     */
+    printResults() {
+        // Open print dialog
+        window.print();
     }
 
     /**

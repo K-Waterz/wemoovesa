@@ -12,15 +12,14 @@ class DistanceService {
      * Configuration for distance calculation
      */
     static config = {
-        // Use OpenRouteService by default (free tier available)
-        // You can switch to Google Distance Matrix or other services
-        provider: 'openrouteservice', // 'openrouteservice' | 'google' | 'fallback'
+        // Use Google Maps by default for better accuracy
+        provider: 'google', // 'google' | 'openrouteservice' | 'fallback'
+        
+        // Google Distance Matrix API key (required for Google provider)
+        googleApiKey: '',
         
         // OpenRouteService API key (get from https://openrouteservice.org/)
         openRouteServiceApiKey: '',
-        
-        // Google Distance Matrix API key (if using Google)
-        googleApiKey: '',
         
         // Fallback: use a simple calculation based on coordinates
         // This requires geocoding first, but we'll provide a simple fallback
@@ -37,12 +36,22 @@ class DistanceService {
             throw new Error('Origin and destination are required');
         }
 
+        // Get API key from window object if not configured
+        if (!this.config.googleApiKey && window.GOOGLE_MAPS_API_KEY && window.GOOGLE_MAPS_API_KEY !== 'YOUR_GOOGLE_MAPS_API_KEY') {
+            this.config.googleApiKey = window.GOOGLE_MAPS_API_KEY;
+        }
+
         try {
             switch (this.config.provider) {
+                case 'google':
+                    if (this.config.googleApiKey) {
+                        return await this.calculateDistanceGoogle(origin, destination);
+                    }
+                    // Fall through to fallback if no API key
+                    console.warn('Google Maps API key not configured, using fallback');
+                    return await this.calculateDistanceFallback(origin, destination);
                 case 'openrouteservice':
                     return await this.calculateDistanceOpenRouteService(origin, destination);
-                case 'google':
-                    return await this.calculateDistanceGoogle(origin, destination);
                 default:
                     return await this.calculateDistanceFallback(origin, destination);
             }
@@ -90,20 +99,32 @@ class DistanceService {
             throw new Error('Google API key not configured');
         }
 
-        const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&units=metric&key=${this.config.googleApiKey}`;
-        
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Google API error: ${response.statusText}`);
-        }
+        // Try using Google Maps JavaScript API first, then fall back to REST API
+        try {
+            const result = await GoogleMapsService.calculateDistance(
+                origin,
+                destination,
+                this.config.googleApiKey
+            );
+            return result.distance;
+        } catch (error) {
+            console.warn('Google Maps JS API failed, trying REST API:', error);
+            // Fall back to REST API
+            const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&units=metric&key=${this.config.googleApiKey}`;
+            
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Google API error: ${response.statusText}`);
+            }
 
-        const data = await response.json();
-        if (data.status !== 'OK' || data.rows[0].elements[0].status !== 'OK') {
-            throw new Error('Could not calculate distance');
-        }
+            const data = await response.json();
+            if (data.status !== 'OK' || !data.rows[0] || data.rows[0].elements[0].status !== 'OK') {
+                throw new Error('Could not calculate distance. Please check the addresses.');
+            }
 
-        const distanceMeters = data.rows[0].elements[0].distance.value;
-        return Math.round((distanceMeters / 1000) * 10) / 10; // Convert to km and round to 1 decimal
+            const distanceMeters = data.rows[0].elements[0].distance.value;
+            return Math.round((distanceMeters / 1000) * 10) / 10; // Convert to km and round to 1 decimal
+        }
     }
 
     /**

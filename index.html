@@ -23,6 +23,23 @@
     
     <!-- Stylesheet -->
     <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Google Maps API - Load with Places and Distance Matrix libraries -->
+    <!-- Replace YOUR_GOOGLE_MAPS_API_KEY with your actual API key -->
+    <!-- Get your API key from: https://console.cloud.google.com/ -->
+    <script>
+        // Google Maps API Key - Replace with your actual key
+        window.GOOGLE_MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY';
+        
+        // Load Google Maps API script
+        if (window.GOOGLE_MAPS_API_KEY && window.GOOGLE_MAPS_API_KEY !== 'YOUR_GOOGLE_MAPS_API_KEY') {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${window.GOOGLE_MAPS_API_KEY}&libraries=places,distancematrix&loading=async`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+    </script>
 </head>
 <body>
     <!-- Header & Navigation -->
@@ -304,13 +321,15 @@
                     <form class="calculator-form" id="calculatorForm">
                         <div class="calculator-locations">
                             <div class="form-group">
-                                <label for="calculatorOrigin">Starting Location <span class="required">*</span></label>
-                                <input type="text" id="calculatorOrigin" placeholder="e.g., The Reeds, Centurion" required>
+                                <label for="calculatorOrigin">Pick-up Location <span class="required">*</span></label>
+                                <input type="text" id="calculatorOrigin" placeholder="Enter pick-up address (e.g., The Reeds, Centurion)" required autocomplete="off">
+                                <small class="form-hint">Start typing to see suggestions from Google Maps</small>
                             </div>
                             
                             <div class="form-group">
-                                <label for="calculatorDestination">Final Destination <span class="required">*</span></label>
-                                <input type="text" id="calculatorDestination" placeholder="e.g., Tzaneen" required>
+                                <label for="calculatorDestination">Delivery Destination <span class="required">*</span></label>
+                                <input type="text" id="calculatorDestination" placeholder="Enter delivery address (e.g., Tzaneen)" required autocomplete="off">
+                                <small class="form-hint">Start typing to see suggestions from Google Maps</small>
                             </div>
                         </div>
 
@@ -671,6 +690,8 @@
 
     <!-- JavaScript -->
     <!-- Moving Calculator Scripts -->
+    <!-- Google Maps Service (load before calculator scripts) -->
+    <script src="js/google-maps-service.js"></script>
     <!-- Optional: Load calculator-config.js to configure API keys (see CALCULATOR_SETUP.md) -->
     <!-- <script src="js/calculator-config.js"></script> -->
     <script src="js/moving-calculator-types.js"></script>
