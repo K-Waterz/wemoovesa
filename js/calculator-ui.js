@@ -76,8 +76,7 @@ class CalculatorUI {
                 }
             }
 
-            // Setup address details toggles
-            this.setupAddressDetailsToggles();
+            // Address fields are always visible now - no toggles needed
 
             // Listen for input changes to update map preview
             originInput?.addEventListener('input', () => {
@@ -112,14 +111,8 @@ class CalculatorUI {
     populateAddressFields(type, place) {
         const addressData = GoogleMapsService.parseAddressComponents(place);
         const prefix = type === 'origin' ? 'origin' : 'destination';
-        
-        // Show address details section
-        const detailsSection = document.getElementById(`${prefix}AddressDetails`);
-        if (detailsSection) {
-            detailsSection.style.display = 'block';
-        }
 
-        // Populate fields
+        // Populate fields (they're always visible now)
         const streetAddress = document.getElementById(`${prefix}StreetAddress`);
         const buildingUnit = document.getElementById(`${prefix}BuildingUnit`);
         const suburb = document.getElementById(`${prefix}Suburb`);
@@ -618,7 +611,7 @@ class CalculatorUI {
         document.getElementById('calculatorOrigin').value = '';
         document.getElementById('calculatorDestination').value = '';
         
-        // Clear all address detail fields
+        // Clear all address detail fields (always visible now)
         ['origin', 'destination'].forEach(prefix => {
             const streetAddress = document.getElementById(`${prefix}StreetAddress`);
             const buildingUnit = document.getElementById(`${prefix}BuildingUnit`);
@@ -633,27 +626,6 @@ class CalculatorUI {
             if (city) city.value = '';
             if (province) province.value = '';
             if (postalCode) postalCode.value = '';
-            
-            // Hide address details sections
-            const detailsSection = document.getElementById(`${prefix}AddressDetails`);
-            if (detailsSection) {
-                detailsSection.style.display = 'none';
-            }
-            
-            const detailsContent = document.getElementById(`${prefix}DetailsContent`);
-            if (detailsContent) {
-                detailsContent.style.display = 'none';
-            }
-            
-            // Reset toggle button
-            const toggleBtn = document.getElementById(`toggle${prefix.charAt(0).toUpperCase() + prefix.slice(1)}Details`);
-            if (toggleBtn) {
-                toggleBtn.classList.remove('expanded');
-                const icon = toggleBtn.querySelector('i');
-                if (icon) {
-                    icon.className = 'fas fa-chevron-down';
-                }
-            }
         });
         
         // Reset all quantities

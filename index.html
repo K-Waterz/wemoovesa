@@ -325,55 +325,45 @@
                                 <div class="form-group">
                                     <label for="calculatorOrigin">Pick-up Location <span class="required">*</span></label>
                                     <div class="location-input-wrapper">
-                                        <input type="text" id="calculatorOrigin" class="location-search-input" placeholder="Search for address (e.g., The Reeds, Centurion)" required autocomplete="off">
+                                        <input type="text" id="calculatorOrigin" class="location-search-input" placeholder="Enter a location" required autocomplete="off">
                                         <button type="button" class="btn-map-picker" id="pickOriginMap" title="Pick location on map">
                                             <i class="fas fa-map-marker-alt"></i> Map
                                         </button>
                                     </div>
-                                    <small class="form-hint">Start typing to see suggestions or click on the map below to drop a pin</small>
+                                    <small class="form-hint">Start typing to see suggestions or click Map to pick on map</small>
+                                </div>
+                                
+                                <!-- Address Details - Always Visible -->
+                                <div class="address-fields-visible">
+                                    <div class="form-group">
+                                        <label for="originBuildingUnit">Building / Floor / Unit</label>
+                                        <input type="text" id="originBuildingUnit" placeholder="Building / Floor / Unit" autocomplete="off">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="originStreetAddress">Street Address</label>
+                                        <input type="text" id="originStreetAddress" placeholder="Street address" autocomplete="off">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="originSuburb">Suburb</label>
+                                        <input type="text" id="originSuburb" placeholder="Suburb" autocomplete="off">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="originCity">City <span class="required">*</span></label>
+                                        <input type="text" id="originCity" placeholder="City" autocomplete="off">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="originProvince">Province</label>
+                                        <input type="text" id="originProvince" placeholder="Province" autocomplete="off">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="originPostalCode">Postal Code</label>
+                                        <input type="text" id="originPostalCode" placeholder="Postal code" maxlength="4" autocomplete="off">
+                                    </div>
                                 </div>
                                 
                                 <!-- Inline Map for Pick-up Location -->
                                 <div class="inline-map-container" id="originMapContainer" style="display: none;">
                                     <div class="inline-map" id="originMap"></div>
-                                </div>
-                                
-                                <div class="address-details" id="originAddressDetails" style="display: none;">
-                                    <button type="button" class="btn-toggle-details" id="toggleOriginDetails">
-                                        <i class="fas fa-chevron-down"></i> Add/Edit Address Details
-                                    </button>
-                                    <div class="address-details-content" id="originDetailsContent" style="display: none;">
-                                        <div class="form-row">
-                                            <div class="form-group">
-                                                <label for="originStreetAddress">Street Address <span class="required">*</span></label>
-                                                <input type="text" id="originStreetAddress" placeholder="e.g., 123 Main Street">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="originBuildingUnit">Building / Floor / Unit</label>
-                                                <input type="text" id="originBuildingUnit" placeholder="e.g., Building A, Floor 3, Unit 301">
-                                            </div>
-                                        </div>
-                                        <div class="form-row">
-                                            <div class="form-group">
-                                                <label for="originSuburb">Suburb</label>
-                                                <input type="text" id="originSuburb" placeholder="e.g., The Reeds">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="originCity">City <span class="required">*</span></label>
-                                                <input type="text" id="originCity" placeholder="e.g., Centurion">
-                                            </div>
-                                        </div>
-                                        <div class="form-row">
-                                            <div class="form-group">
-                                                <label for="originProvince">Province</label>
-                                                <input type="text" id="originProvince" placeholder="e.g., Gauteng">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="originPostalCode">Postal Code</label>
-                                                <input type="text" id="originPostalCode" placeholder="e.g., 0157" maxlength="4">
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                             
@@ -382,55 +372,45 @@
                                 <div class="form-group">
                                     <label for="calculatorDestination">Delivery Destination <span class="required">*</span></label>
                                     <div class="location-input-wrapper">
-                                        <input type="text" id="calculatorDestination" class="location-search-input" placeholder="Search for address (e.g., Tzaneen)" required autocomplete="off">
+                                        <input type="text" id="calculatorDestination" class="location-search-input" placeholder="Enter a location" required autocomplete="off">
                                         <button type="button" class="btn-map-picker" id="pickDestinationMap" title="Pick location on map">
                                             <i class="fas fa-map-marker-alt"></i> Map
                                         </button>
                                     </div>
-                                    <small class="form-hint">Start typing to see suggestions or click on the map below to drop a pin</small>
+                                    <small class="form-hint">Start typing to see suggestions or click Map to pick on map</small>
+                                </div>
+                                
+                                <!-- Address Details - Always Visible -->
+                                <div class="address-fields-visible">
+                                    <div class="form-group">
+                                        <label for="destinationBuildingUnit">Building / Floor / Unit</label>
+                                        <input type="text" id="destinationBuildingUnit" placeholder="Building / Floor / Unit" autocomplete="off">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="destinationStreetAddress">Street Address</label>
+                                        <input type="text" id="destinationStreetAddress" placeholder="Street address" autocomplete="off">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="destinationSuburb">Suburb</label>
+                                        <input type="text" id="destinationSuburb" placeholder="Suburb" autocomplete="off">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="destinationCity">City <span class="required">*</span></label>
+                                        <input type="text" id="destinationCity" placeholder="City" autocomplete="off">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="destinationProvince">Province</label>
+                                        <input type="text" id="destinationProvince" placeholder="Province" autocomplete="off">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="destinationPostalCode">Postal Code</label>
+                                        <input type="text" id="destinationPostalCode" placeholder="Postal code" maxlength="4" autocomplete="off">
+                                    </div>
                                 </div>
                                 
                                 <!-- Inline Map for Delivery Destination -->
                                 <div class="inline-map-container" id="destinationMapContainer" style="display: none;">
                                     <div class="inline-map" id="destinationMap"></div>
-                                </div>
-                                
-                                <div class="address-details" id="destinationAddressDetails" style="display: none;">
-                                    <button type="button" class="btn-toggle-details" id="toggleDestinationDetails">
-                                        <i class="fas fa-chevron-down"></i> Add/Edit Address Details
-                                    </button>
-                                    <div class="address-details-content" id="destinationDetailsContent" style="display: none;">
-                                        <div class="form-row">
-                                            <div class="form-group">
-                                                <label for="destinationStreetAddress">Street Address <span class="required">*</span></label>
-                                                <input type="text" id="destinationStreetAddress" placeholder="e.g., 123 Main Street">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="destinationBuildingUnit">Building / Floor / Unit</label>
-                                                <input type="text" id="destinationBuildingUnit" placeholder="e.g., Building A, Floor 3, Unit 301">
-                                            </div>
-                                        </div>
-                                        <div class="form-row">
-                                            <div class="form-group">
-                                                <label for="destinationSuburb">Suburb</label>
-                                                <input type="text" id="destinationSuburb" placeholder="e.g., The Reeds">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="destinationCity">City <span class="required">*</span></label>
-                                                <input type="text" id="destinationCity" placeholder="e.g., Centurion">
-                                            </div>
-                                        </div>
-                                        <div class="form-row">
-                                            <div class="form-group">
-                                                <label for="destinationProvince">Province</label>
-                                                <input type="text" id="destinationProvince" placeholder="e.g., Gauteng">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="destinationPostalCode">Postal Code</label>
-                                                <input type="text" id="destinationPostalCode" placeholder="e.g., 0157" maxlength="4">
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
